@@ -1,22 +1,22 @@
 <?php
 
-class Person {
-    public static $id;
-    public $name;
+spl_autoload_register(function($className){
+    $className = substr($className, strlen('App\\'));
+    require_once(__DIR__."/../src/$className.php");
+});
 
-    public static function getId(){
-        echo $this->name;
-        return self::$id;
+require(__DIR__.'/../routes.php');
+require(__DIR__.'/../helpers.php');
+
+$router = new App\Router($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);
+$match = $router->match();
+if($match){
+    if(is_array($match['action'])){
+        $class = $match['action'][0];
+        $controller = new $class();
+        $method = $match['action'][1];
+        $controller->$method();
+    } else {
+    call_user_func($match['action']);
     }
 }
-
-$person1 = new Person();
-$person1->name = 'Kati';
-Person::$id = 1;
-
-$person2 = new Person();
-$person2->name = 'Mati';
-Person::$id = 2;
-
-var_dump(Person::getId());
-var_dump($person2::$id);
